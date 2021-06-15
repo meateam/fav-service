@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package favorite;
+
+
+service Favorite {
+    rpc CreateToFavorites (CreateFavoriteRequest) returns (CreateFavoriteResponse) {}
+    rpc DeleteFromFavorites (DeleteFavoriteRequest) returns (DeleteFavoriteResponse) {}
+    rpc GetAllFavorites (GetAllFavoriteRequest) returns (GetAllFavoriteResponse) {}
+}
+
+message CreateFavoriteRequest {
+    string userID = 1;
+    string fileID = 2;
+}
+
+message CreateFavoriteResponse {
+    string userID = 1;
+    string fileID = 2;
+}
+
+message DeleteFavoriteRequest {
+    string userID = 1;
+    string fileID = 2;
+}
+
+message DeleteFavoriteResponse {
+    string userID = 1;
+    string fileID = 2;
+}
+
+message GetAllFavoriteRequest {
+    string userID = 1;
+}
+
+message GetAllFavoriteResponse {
+    repeated string files = 3;
+}
+
