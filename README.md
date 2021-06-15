@@ -1,1 +1,1 @@
-# favorite-service
+# fav-service
