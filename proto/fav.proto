@@ -1,11 +1,14 @@
 syntax = "proto3";
 
+option go_package = "https://github.com/meateam/fav-service/blob/develop/proto/fav.proto";
+
+
 package favorite;
 
 
 service Favorite {
-    rpc CreateToFavorites (CreateFavoriteRequest) returns (CreateFavoriteResponse) {}
-    rpc DeleteFromFavorites (DeleteFavoriteRequest) returns (DeleteFavoriteResponse) {}
+    rpc CreateToFavorites (CreateFavoriteRequest) returns (FavoriteObject) {}
+    rpc DeleteFromFavorites (DeleteFavoriteRequest) returns (FavoriteObject) {}
     rpc GetAllFavorites (GetAllFavoriteRequest) returns (GetAllFavoriteResponse) {}
 }
 
@@ -14,17 +17,13 @@ message CreateFavoriteRequest {
     string fileID = 2;
 }
 
-message CreateFavoriteResponse {
-    string userID = 1;
-    string fileID = 2;
-}
 
 message DeleteFavoriteRequest {
     string userID = 1;
     string fileID = 2;
 }
 
-message DeleteFavoriteResponse {
+message FavoriteObject {
     string userID = 1;
     string fileID = 2;
 }
