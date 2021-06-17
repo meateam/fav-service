@@ -6,6 +6,7 @@ import (
 
 	"github.com/meateam/fav-service/service"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	// pb "github.com/meateam/fav-service/proto"
@@ -102,8 +103,7 @@ func (s MongoStore) CreateFavorite(ctx context.Context, favorite service.Favorit
 	
 	fmt.Println(result)
 
-	// return result, nil //!!!!!!!!!!!!!!!!!!
-	return nil, nil
+	return result, nil
 }
 
 func (s MongoStore) DeleteFavorite(ctx context.Context, filter interface{}) (service.Favorite, error){

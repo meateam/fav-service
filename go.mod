@@ -10,6 +10,7 @@ require (
 	github.com/meateam/permission-service v0.0.0-20210119152530-568b1a266ded
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.7.1
+	go.elastic.co/apm/module/apmmongo v1.6.0
 	go.mongodb.org/mongo-driver v1.5.1
 	google.golang.org/grpc v1.37.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0 // indirect

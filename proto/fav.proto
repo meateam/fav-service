@@ -33,6 +33,6 @@ message GetAllFavoriteRequest {
 }
 
 message GetAllFavoriteResponse {
-    repeated string files = 3;
+    repeated FavoriteObject favFileList = 1;
 }
 
