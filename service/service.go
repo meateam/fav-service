@@ -31,7 +31,7 @@ func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteReque
 		return nil, fmt.Errorf("fileID is required")
 	}
 
-	favorite, err := s.controller.CreateFavorite(ctx, fileID, userID)
+	favorite, err := s.controller.CreateFavoriteByUserAndFile(ctx, fileID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteReque
 		return nil, fmt.Errorf("fileID is required")
 	}
 
-	favorite, err := s.controller.DeleteFavorite(ctx, fileID, userID)
+	favorite, err := s.controller.DeleteFavoriteByUserAndFile(ctx, fileID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,11 +78,11 @@ func (s Service) GetAll(ctx context.Context, req *pb.GetAllFavoriteRequest,) (*p
 		return nil, fmt.Errorf("userID is required")
 	}
 
-	favorite, err := s.controller.GetAll(ctx, userID)
+	favorite, err := s.controller.GetAllByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.GetAllFavoriteResponse{Files: favorite}, nil
+	return &pb.GetAllFavoriteResponse{FavFileList: favorite}, nil
 }
 
