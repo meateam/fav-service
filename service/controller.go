@@ -9,7 +9,7 @@ import (
 
 // Controller is an interface for the business logic of the fav.Service which uses a Store.
 type Controller interface {
-	CreateFavoriteByUserAndFile(ctx context.Context, fileID string, userID string) (Favorite, error)
-	DeleteFavoriteByUserAndFile(ctx context.Context, fileID string, userID string) (Favorite, error)
-	GetAllByUserID(ctx context.Context, userID string) ([]*pb.FavoriteObject, error)
+	CreateFavorites(ctx context.Context, fileID string, userID string) (Favorite, error)
+	DeleteFavorites(ctx context.Context, fileID string, userID string) (Favorite, error)
+	GetAllFavorites(ctx context.Context, userID string) ([]*pb.FavoriteObject, error)
 }

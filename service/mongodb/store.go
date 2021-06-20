@@ -57,6 +57,13 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 	return MongoStore{DB: db}, nil
 }
 
+
+
+
+
+
+
+
 func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 

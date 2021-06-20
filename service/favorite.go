@@ -5,7 +5,6 @@ import (
 	pb "github.com/meateam/fav-service/proto"
 )
 
-
 // Favorite is an interface of a favorite object (UserID, FileID)
 type Favorite interface {
 	GetFileID() string
@@ -16,5 +15,5 @@ type Favorite interface {
 
 	SetUserID(userID string) error
 
-	MarshalProto(permission *pb.FavoriteObject) error
+	MarshalProto(favorite *pb.FavoriteObject) error
 }

@@ -3,10 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
-	"log"
+
+	// "log"
 	"net"
 	"time"
 
+	ilogger "github.com/meateam/elasticsearch-logger"
 	pb "github.com/meateam/fav-service/proto"
 	"github.com/meateam/fav-service/service"
 	"github.com/meateam/fav-service/service/mongodb"
@@ -18,81 +20,71 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 	"google.golang.org/grpc"
-	// ilogger "github.com/meateam/elasticsearch-logger"
+	"google.golang.org/grpc/reflection"
 )
 
 const (
 	configPort                         = "port"
 	configMongoConnectionString        = "mongo_host"
-	configMongoClientConnectionTimeout = "mongo_client_connection_timeout"
+	// configMongoClientConnectionTimeout = "mongo_client_connection_timeout"
 	configMongoClientPingTimeout       = "mongo_client_ping_timeout"
 
 )
 
 func init() {
 	viper.SetDefault(configPort, "8080")
-	viper.SetDefault(configMongoConnectionString, "mongodb://localhost:27017/permission")
-	viper.SetDefault(configMongoClientConnectionTimeout, 10)
+	viper.SetDefault(configMongoConnectionString, "mongodb://localhost:27017/favorite")
+	// viper.SetDefault(configMongoClientConnectionTimeout, 10)
 	viper.SetDefault(configMongoClientPingTimeout, 10)
 	
 }
 
-type FavServer struct {
+type FavoriteServer struct {
 	*grpc.Server
 	logger            *logrus.Logger
 	port              string
 	favoriteService   service.Service
 }
 
-func (s FavServer) Serve(lis net.Listener) {
+func (s FavoriteServer) Serve(lis net.Listener) {
 
 }
 
-func NewServer(logger *logrus.Logger) *FavServer {
+
+//NewServer configures and creates a grpc.Server instance 
+//returns FavoriteServer 
+func NewServer(logger *logrus.Logger) *FavoriteServer {
+
+	// If no logger is given, create a new default logger for the server.
+	if logger == nil {
+		logger = ilogger.NewLogger()
+	}
+
+
+	// Create a new grpc server.
 	grpcServer := grpc.NewServer()
 
-	// controller, err := 
+	mongoDBcontroller, err := initMongoDBcontroller(viper.GetString(configMongoConnectionString))
+	if err != nil {
+		logger.Fatalf("%v", err)
+	}
 
-	// favService := service.NewService()
+	// fav := &pb.FavoriteServer
+	favoriteService := service.NewService(mongoDBcontroller, logger)
+	pb.RegisterFavoriteServer(grpcServer, favoriteService)
+
+	// reflection.Register(grpcServer)
+
+
 }
 
-func connectToMongoDB(connectionString string) (*mongo.Client, error) {
-	// Create mongodb client.
-	mongoOptions := options.Client().ApplyURI(connectionString).SetMonitor(apmmongo.CommandMonitor())
-	mongoClient, err := mongo.NewClient(mongoOptions)
-	if err != nil {
-		return nil, fmt.Errorf("failed creating mongodb client with connection string %s: %v", connectionString, err)
-	}
 
-	// Connect client to mongodb.
-	mongoClientConnectionTimout := viper.GetDuration(configMongoClientConnectionTimeout)
-	connectionTimeoutCtx, cancelConn := context.WithTimeout(context.TODO(), mongoClientConnectionTimout*time.Second)
-	defer cancelConn()
-	err = mongoClient.Connect(connectionTimeoutCtx)
-	if err != nil {
-		return nil, fmt.Errorf("failed connecting to mongodb with connection string %s: %v", connectionString, err)
-	}
 
-	// Check the connection.
-	mongoClientPingTimeout := viper.GetDuration(configMongoClientPingTimeout)
-	pingTimeoutCtx, cancelPing := context.WithTimeout(context.TODO(), mongoClientPingTimeout*time.Second)
-	defer cancelPing()
-	err = mongoClient.Ping(pingTimeoutCtx, readpref.Primary())
-	if err != nil {
-		return nil, fmt.Errorf("failed pinging to mongodb with connection string %s: %v", connectionString, err)
-	}
 
-	return mongoClient, nil
-}
 
-func getMongoDatabaseName(mongoClient *mongo.Client, connectionString string) (*mongo.Database, error) {
-	connString, err := connstring.Parse(connectionString)
-	if err != nil {
-		return nil, fmt.Errorf("failed parsing connection string %s: %v", connectionString, err)
-	}
 
-	return mongoClient.Database(connString.Database), nil
-}
+
+
 
 
 
@@ -115,3 +107,80 @@ func initMongoDBcontroller(connectionString string) (service.Controller, error) 
 	return controller, nil
 
 }
+
+
+
+
+
+
+
+
+
+
+func connectToMongoDB(connectionString string) (*mongo.Client, error) {
+//Create mongodb client:
+	
+	//SetMonitor specifies a CommandMonitor (a monitor that is triggered for different events) to receive command events 
+	mongoOptions := options.Client().ApplyURI(connectionString).SetMonitor(apmmongo.CommandMonitor())
+	mongoClient, err := mongo.NewClient(mongoOptions)
+	if err != nil {
+		return nil, fmt.Errorf("failed creating mongodb client with connection string %s: %v", connectionString, err)
+	}
+
+// Connect client to mongodb:
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err = mongoClient.Connect(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed connecting to mongodb with connection string %s: %v", connectionString, err)
+	}
+
+	defer mongoClient.Disconnect(ctx)
+
+// check the connection: (copied)
+	mongoClientPingTimeout := viper.GetDuration(configMongoClientPingTimeout)
+	pingTimeoutCtx, cancelPing := context.WithTimeout(context.TODO(), mongoClientPingTimeout*time.Second)
+	defer cancelPing()
+	err = mongoClient.Ping(pingTimeoutCtx, readpref.Primary())
+	if err != nil {
+		return nil, fmt.Errorf("failed pinging to mongodb with connection string %s: %v", connectionString, err)
+	}
+
+	return mongoClient, nil
+
+}
+
+
+
+
+
+
+
+
+func getMongoDatabaseName(mongoClient *mongo.Client, connectionString string) (*mongo.Database, error) {
+	connString, err := connstring.Parse(connectionString)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing connection string %s: %v", connectionString, err)
+	}
+
+	return mongoClient.Database(connString.Database), nil
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

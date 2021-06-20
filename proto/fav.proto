@@ -7,8 +7,8 @@ package favorite;
 
 
 service Favorite {
-    rpc CreateToFavorites (CreateFavoriteRequest) returns (FavoriteObject) {}
-    rpc DeleteFromFavorites (DeleteFavoriteRequest) returns (FavoriteObject) {}
+    rpc CreateFavorites (CreateFavoriteRequest) returns (FavoriteObject) {}
+    rpc DeleteFavorites (DeleteFavoriteRequest) returns (FavoriteObject) {}
     rpc GetAllFavorites (GetAllFavoriteRequest) returns (GetAllFavoriteResponse) {}
 }
 

@@ -27,6 +27,16 @@ func NewMongoController(db *mongo.Database) (Controller, error) {
 	return Controller{store: store}, nil
 }
 
+
+
+
+
+
+
+
+
+
+
 func (c Controller) GetAllByUserID(ctx context.Context, userID string) ([]*pb.FavoriteObject, error) {
 	filter := bson.D{
 		bson.E{

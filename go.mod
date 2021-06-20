@@ -4,10 +4,10 @@ go 1.16
 
 require (
 	github.com/gin-gonic/gin v1.7.1 // indirect
-	github.com/go-delve/delve v1.6.1
-	github.com/go-openapi/runtime v0.19.29
+	github.com/go-delve/delve v1.6.1 // indirect
+	github.com/go-openapi/runtime v0.19.29 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/meateam/permission-service v0.0.0-20210119152530-568b1a266ded
+	github.com/meateam/elasticsearch-logger v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.7.1
 	go.elastic.co/apm/module/apmmongo v1.6.0
