@@ -10,6 +10,7 @@ import (
 
 // Service is a structure used for handling favorite Service grpc requests.
 type Service struct {
+	pb.UnimplementedFavoriteServer
 	controller Controller
 	logger     *logrus.Logger
 }
@@ -18,7 +19,7 @@ func NewService(controller Controller, logger *logrus.Logger) Service {
 	return Service{controller: controller, logger: logger}
 }
 
-func (s Service) CreateFavorites(ctx context.Context, req *pb.CreateFavoriteRequest,) (*pb.FavoriteObject, error) {
+func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteRequest,) (*pb.FavoriteObject, error) {
 	// fileID := req.FileID - what are the difference
 	fileID := req.GetFileID()
 	userID := req.GetUserID()
@@ -44,8 +45,7 @@ func (s Service) CreateFavorites(ctx context.Context, req *pb.CreateFavoriteRequ
 	return &response, nil
 }
 
-
-func (s Service) DeleteFavorites(ctx context.Context, req *pb.DeleteFavoriteRequest,) (*pb.FavoriteObject, error) {
+func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteRequest,) (*pb.FavoriteObject, error) {
 	fileID := req.GetFileID()
 	userID := req.GetUserID()
 
@@ -71,7 +71,7 @@ func (s Service) DeleteFavorites(ctx context.Context, req *pb.DeleteFavoriteRequ
 
 }
 
-func (s Service) GetAllFavorites(ctx context.Context, req *pb.GetAllFavoriteRequest,) (*pb.GetAllFavoriteResponse, error) {
+func (s Service) GetAllFavorite(ctx context.Context, req *pb.GetAllFavoriteRequest,) (*pb.GetAllFavoriteResponse, error) {
 	userID := req.GetUserID()
 
 	if userID == "" {

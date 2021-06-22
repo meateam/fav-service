@@ -58,13 +58,7 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 }
 
 
-
-
-
-
-
-
-func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]service.Favorite, error) {
+func (s MongoStore) GetAllFavorites(ctx context.Context, filter interface{}) ([]service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	filterCursor, err := collection.Find(ctx, filter)
@@ -81,7 +75,7 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]service.F
 	return favoriteFiles, nil
 }
 
-func (s MongoStore) CreateFavorite(ctx context.Context, favorite service.Favorite,) (service.Favorite, error) {
+func (s MongoStore) CreateFavorites(ctx context.Context, favorite service.Favorite,) (service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	fileID := favorite.GetFileID()
@@ -106,7 +100,6 @@ func (s MongoStore) CreateFavorite(ctx context.Context, favorite service.Favorit
 	opts := options.FindOneAndUpdate().SetUpsert(true) 
 	
 	result := collection.FindOneAndUpdate(ctx, favObject, favObject, opts)
-	fmt.Println(result)
 
 	favoriteRes := &BSON{}
 	err := result.Decode(favoriteRes)
@@ -119,7 +112,7 @@ func (s MongoStore) CreateFavorite(ctx context.Context, favorite service.Favorit
 
 }
 
-func (s MongoStore) DeleteFavorite(ctx context.Context, filter interface{}) (service.Favorite, error){
+func (s MongoStore) DeleteFavorites(ctx context.Context, filter interface{}) (service.Favorite, error){
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	result := collection.FindOneAndDelete(ctx, filter)

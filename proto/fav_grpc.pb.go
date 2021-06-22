@@ -18,9 +18,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FavoriteClient interface {
-	CreateFavorites(ctx context.Context, in *CreateFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error)
-	DeleteFavorites(ctx context.Context, in *DeleteFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error)
-	GetAllFavorites(ctx context.Context, in *GetAllFavoriteRequest, opts ...grpc.CallOption) (*GetAllFavoriteResponse, error)
+	CreateFavorite(ctx context.Context, in *CreateFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error)
+	DeleteFavorite(ctx context.Context, in *DeleteFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error)
+	GetAllFavorite(ctx context.Context, in *GetAllFavoriteRequest, opts ...grpc.CallOption) (*GetAllFavoriteResponse, error)
 }
 
 type favoriteClient struct {
@@ -31,27 +31,27 @@ func NewFavoriteClient(cc grpc.ClientConnInterface) FavoriteClient {
 	return &favoriteClient{cc}
 }
 
-func (c *favoriteClient) CreateFavorites(ctx context.Context, in *CreateFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error) {
+func (c *favoriteClient) CreateFavorite(ctx context.Context, in *CreateFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error) {
 	out := new(FavoriteObject)
-	err := c.cc.Invoke(ctx, "/favorite.Favorite/CreateFavorites", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/favorite.Favorite/CreateFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *favoriteClient) DeleteFavorites(ctx context.Context, in *DeleteFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error) {
+func (c *favoriteClient) DeleteFavorite(ctx context.Context, in *DeleteFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error) {
 	out := new(FavoriteObject)
-	err := c.cc.Invoke(ctx, "/favorite.Favorite/DeleteFavorites", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/favorite.Favorite/DeleteFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *favoriteClient) GetAllFavorites(ctx context.Context, in *GetAllFavoriteRequest, opts ...grpc.CallOption) (*GetAllFavoriteResponse, error) {
+func (c *favoriteClient) GetAllFavorite(ctx context.Context, in *GetAllFavoriteRequest, opts ...grpc.CallOption) (*GetAllFavoriteResponse, error) {
 	out := new(GetAllFavoriteResponse)
-	err := c.cc.Invoke(ctx, "/favorite.Favorite/GetAllFavorites", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/favorite.Favorite/GetAllFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,9 +62,9 @@ func (c *favoriteClient) GetAllFavorites(ctx context.Context, in *GetAllFavorite
 // All implementations must embed UnimplementedFavoriteServer
 // for forward compatibility
 type FavoriteServer interface {
-	CreateFavorites(context.Context, *CreateFavoriteRequest) (*FavoriteObject, error)
-	DeleteFavorites(context.Context, *DeleteFavoriteRequest) (*FavoriteObject, error)
-	GetAllFavorites(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error)
+	CreateFavorite(context.Context, *CreateFavoriteRequest) (*FavoriteObject, error)
+	DeleteFavorite(context.Context, *DeleteFavoriteRequest) (*FavoriteObject, error)
+	GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error)
 	mustEmbedUnimplementedFavoriteServer()
 }
 
@@ -72,14 +72,14 @@ type FavoriteServer interface {
 type UnimplementedFavoriteServer struct {
 }
 
-func (UnimplementedFavoriteServer) CreateFavorites(context.Context, *CreateFavoriteRequest) (*FavoriteObject, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorites not implemented")
+func (UnimplementedFavoriteServer) CreateFavorite(context.Context, *CreateFavoriteRequest) (*FavoriteObject, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorite not implemented")
 }
-func (UnimplementedFavoriteServer) DeleteFavorites(context.Context, *DeleteFavoriteRequest) (*FavoriteObject, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteFavorites not implemented")
+func (UnimplementedFavoriteServer) DeleteFavorite(context.Context, *DeleteFavoriteRequest) (*FavoriteObject, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFavorite not implemented")
 }
-func (UnimplementedFavoriteServer) GetAllFavorites(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllFavorites not implemented")
+func (UnimplementedFavoriteServer) GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllFavorite not implemented")
 }
 func (UnimplementedFavoriteServer) mustEmbedUnimplementedFavoriteServer() {}
 
@@ -94,56 +94,56 @@ func RegisterFavoriteServer(s grpc.ServiceRegistrar, srv FavoriteServer) {
 	s.RegisterService(&Favorite_ServiceDesc, srv)
 }
 
-func _Favorite_CreateFavorites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Favorite_CreateFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateFavoriteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FavoriteServer).CreateFavorites(ctx, in)
+		return srv.(FavoriteServer).CreateFavorite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/favorite.Favorite/CreateFavorites",
+		FullMethod: "/favorite.Favorite/CreateFavorite",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FavoriteServer).CreateFavorites(ctx, req.(*CreateFavoriteRequest))
+		return srv.(FavoriteServer).CreateFavorite(ctx, req.(*CreateFavoriteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Favorite_DeleteFavorites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Favorite_DeleteFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteFavoriteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FavoriteServer).DeleteFavorites(ctx, in)
+		return srv.(FavoriteServer).DeleteFavorite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/favorite.Favorite/DeleteFavorites",
+		FullMethod: "/favorite.Favorite/DeleteFavorite",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FavoriteServer).DeleteFavorites(ctx, req.(*DeleteFavoriteRequest))
+		return srv.(FavoriteServer).DeleteFavorite(ctx, req.(*DeleteFavoriteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Favorite_GetAllFavorites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Favorite_GetAllFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAllFavoriteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FavoriteServer).GetAllFavorites(ctx, in)
+		return srv.(FavoriteServer).GetAllFavorite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/favorite.Favorite/GetAllFavorites",
+		FullMethod: "/favorite.Favorite/GetAllFavorite",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FavoriteServer).GetAllFavorites(ctx, req.(*GetAllFavoriteRequest))
+		return srv.(FavoriteServer).GetAllFavorite(ctx, req.(*GetAllFavoriteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -156,16 +156,16 @@ var Favorite_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FavoriteServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateFavorites",
-			Handler:    _Favorite_CreateFavorites_Handler,
+			MethodName: "CreateFavorite",
+			Handler:    _Favorite_CreateFavorite_Handler,
 		},
 		{
-			MethodName: "DeleteFavorites",
-			Handler:    _Favorite_DeleteFavorites_Handler,
+			MethodName: "DeleteFavorite",
+			Handler:    _Favorite_DeleteFavorite_Handler,
 		},
 		{
-			MethodName: "GetAllFavorites",
-			Handler:    _Favorite_GetAllFavorites_Handler,
+			MethodName: "GetAllFavorite",
+			Handler:    _Favorite_GetAllFavorite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,10 +2,9 @@ package service
 
 import (
 	"context"
+
 	pb "github.com/meateam/fav-service/proto"
-
 )
-
 
 // Controller is an interface for the business logic of the fav.Service which uses a Store.
 type Controller interface {

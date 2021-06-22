@@ -1,9 +1,12 @@
 package main
 
 import (
-	// "github.com/meateam/fav-service/server"
+
+	"github.com/meateam/fav-service/server"
 )
 
+
+
 func main() {
-	// server.NewServer(nil).Server(nil)
+	server.NewServer()
 }

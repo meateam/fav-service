@@ -21,6 +21,7 @@ type Controller struct {
 func NewMongoController(db *mongo.Database) (Controller, error) {
 	store, err := newMongoStore(db)
 	if err != nil {
+		// fmt.Println(err)
 		return Controller{}, err
 	}
 
@@ -28,16 +29,7 @@ func NewMongoController(db *mongo.Database) (Controller, error) {
 }
 
 
-
-
-
-
-
-
-
-
-
-func (c Controller) GetAllByUserID(ctx context.Context, userID string) ([]*pb.FavoriteObject, error) {
+func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]*pb.FavoriteObject, error) {
 	filter := bson.D{
 		bson.E{
 			Key:   FavoriteBSONUserIDField,
@@ -45,7 +37,7 @@ func (c Controller) GetAllByUserID(ctx context.Context, userID string) ([]*pb.Fa
 		},
 	}
 
-	favoriteFiles, err := c.store.GetAll(ctx, filter)
+	favoriteFiles, err := c.store.GetAllFavorites(ctx, filter)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	}
@@ -65,9 +57,9 @@ func (c Controller) GetAllByUserID(ctx context.Context, userID string) ([]*pb.Fa
 	return returnedFavFiles, nil
 }
 
-func (c Controller) CreateFavoriteByUserAndFile(ctx context.Context, fileID string, userID string,) (service.Favorite, error) {
+func (c Controller) CreateFavorite(ctx context.Context, fileID string, userID string,) (service.Favorite, error) {
 	FavoriteObject := &BSON{FileID: fileID, UserID: userID}
-	createdFavorite, err := c.store.CreateFavorite(ctx, FavoriteObject)
+	createdFavorite, err := c.store.CreateFavorites(ctx, FavoriteObject)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating favorite: %v", err)
 	}
@@ -75,7 +67,7 @@ func (c Controller) CreateFavoriteByUserAndFile(ctx context.Context, fileID stri
 	return createdFavorite, nil
 }
 
-func (c Controller) DeleteFavoriteByUserAndFile(ctx context.Context, fileID string, userID string,) (service.Favorite, error) {
+func (c Controller) DeleteFavorites(ctx context.Context, fileID string, userID string,) (service.Favorite, error) {
 	filter := bson.D{
 		bson.E{
 			Key:   FavoriteBSONFileIDField,
@@ -87,7 +79,7 @@ func (c Controller) DeleteFavoriteByUserAndFile(ctx context.Context, fileID stri
 		},
 	}
 
-	favorite, err := c.store.DeleteFavorite(ctx, filter)
+	favorite, err := c.store.DeleteFavorites(ctx, filter)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	}
