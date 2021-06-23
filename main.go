@@ -8,5 +8,5 @@ import (
 
 
 func main() {
-	server.NewServer()
+	server.NewServer(nil).Serve(nil)
 }

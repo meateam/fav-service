@@ -65,7 +65,7 @@ type FavoriteServer interface {
 	CreateFavorite(context.Context, *CreateFavoriteRequest) (*FavoriteObject, error)
 	DeleteFavorite(context.Context, *DeleteFavoriteRequest) (*FavoriteObject, error)
 	GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error)
-	mustEmbedUnimplementedFavoriteServer()
+	// mustEmbedUnimplementedFavoriteServer()
 }
 
 // UnimplementedFavoriteServer must be embedded to have forward compatible implementations.
@@ -81,13 +81,13 @@ func (UnimplementedFavoriteServer) DeleteFavorite(context.Context, *DeleteFavori
 func (UnimplementedFavoriteServer) GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllFavorite not implemented")
 }
-func (UnimplementedFavoriteServer) mustEmbedUnimplementedFavoriteServer() {}
+// func (UnimplementedFavoriteServer) mustEmbedUnimplementedFavoriteServer() {}
 
 // UnsafeFavoriteServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to FavoriteServer will
 // result in compilation errors.
 type UnsafeFavoriteServer interface {
-	mustEmbedUnimplementedFavoriteServer()
+	// mustEmbedUnimplementedFavoriteServer()
 }
 
 func RegisterFavoriteServer(s grpc.ServiceRegistrar, srv FavoriteServer) {

@@ -6,9 +6,9 @@ import (
 
 	"github.com/meateam/fav-service/service"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	// pb "github.com/meateam/fav-service/proto"
 )
 
 const (
@@ -29,7 +29,6 @@ const (
 type MongoStore struct {
 	DB *mongo.Database
 }
-
 
 // newMongoStore returns a new store.
 func newMongoStore(db *mongo.Database) (MongoStore, error) {
@@ -57,29 +56,29 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 	return MongoStore{DB: db}, nil
 }
 
+func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive.D, error) {
 
-func (s MongoStore) GetAllFavorites(ctx context.Context, filter interface{}) ([]service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	filterCursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer filterCursor.Close(ctx)
 
-	favoriteFiles := []service.Favorite{}
-	if err = filterCursor.All(ctx, &favoriteFiles); err != nil {
+	var favFiles []bson.D
+	if err = filterCursor.All(ctx, &favFiles); err != nil {
 		return nil, err
 	}
 
-	return favoriteFiles, nil
+	return favFiles, nil
 }
 
-func (s MongoStore) CreateFavorites(ctx context.Context, favorite service.Favorite,) (service.Favorite, error) {
+func (s MongoStore) Create(ctx context.Context, favorite service.Favorite,) (service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	fileID := favorite.GetFileID()
 	userID := favorite.GetUserID()
+
 
 	if fileID == "" {
 		return nil, fmt.Errorf("fileID is required")
@@ -92,27 +91,21 @@ func (s MongoStore) CreateFavorites(ctx context.Context, favorite service.Favori
 	favObject := bson.D{
 		{Key: "userID", Value: userID},
 		{Key: "fileID", Value: fileID},
-	} 
+	}
 
+	collection.InsertOne(ctx, favObject)
 
-//upsert true: Creates a new document if no documents match the filter
-
-	opts := options.FindOneAndUpdate().SetUpsert(true) 
-	
-	result := collection.FindOneAndUpdate(ctx, favObject, favObject, opts)
-
+	result := collection.FindOne(ctx, favObject)
 	favoriteRes := &BSON{}
-	err := result.Decode(favoriteRes)
-
-	if err != nil {
-		return nil, err
+	er := result.Decode(favoriteRes)
+	if er != nil {
+		return nil, er
 	}
 
 	return favoriteRes, nil
-
 }
 
-func (s MongoStore) DeleteFavorites(ctx context.Context, filter interface{}) (service.Favorite, error){
+func (s MongoStore) Delete(ctx context.Context, filter interface{}) (service.Favorite, error){
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	result := collection.FindOneAndDelete(ctx, filter)
@@ -127,4 +120,8 @@ func (s MongoStore) DeleteFavorites(ctx context.Context, filter interface{}) (se
 	return deletedFav, nil
 
 }
+
+
+
+
 

@@ -21,13 +21,11 @@ type Controller struct {
 func NewMongoController(db *mongo.Database) (Controller, error) {
 	store, err := newMongoStore(db)
 	if err != nil {
-		// fmt.Println(err)
 		return Controller{}, err
 	}
 
 	return Controller{store: store}, nil
 }
-
 
 func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]*pb.FavoriteObject, error) {
 	filter := bson.D{
@@ -37,7 +35,7 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]*pb.F
 		},
 	}
 
-	favoriteFiles, err := c.store.GetAllFavorites(ctx, filter)
+	favoriteFiles, err := c.store.GetAll(ctx, filter)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	}
@@ -48,18 +46,20 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]*pb.F
 
 	returnedFavFiles := make([]*pb.FavoriteObject, 0, len(favoriteFiles))
 	for _, favFiles := range favoriteFiles {
+		fileID := fmt.Sprintf("%v",favFiles[1].Value)
+		userID := fmt.Sprintf("%v",favFiles[2].Value)
 		returnedFavFiles = append(returnedFavFiles, &pb.FavoriteObject{
-			UserID: favFiles.GetUserID(),
-			FileID: favFiles.GetFileID(),
+			UserID: userID,
+			FileID: fileID,
 		})
 	}
 
 	return returnedFavFiles, nil
 }
 
-func (c Controller) CreateFavorite(ctx context.Context, fileID string, userID string,) (service.Favorite, error) {
+func (c Controller) CreateFavorites(ctx context.Context, fileID string, userID string,) (service.Favorite, error) {
 	FavoriteObject := &BSON{FileID: fileID, UserID: userID}
-	createdFavorite, err := c.store.CreateFavorites(ctx, FavoriteObject)
+	createdFavorite, err := c.store.Create(ctx, FavoriteObject)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating favorite: %v", err)
 	}
@@ -79,7 +79,7 @@ func (c Controller) DeleteFavorites(ctx context.Context, fileID string, userID s
 		},
 	}
 
-	favorite, err := c.store.DeleteFavorites(ctx, filter)
+	favorite, err := c.store.Delete(ctx, filter)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	}
@@ -90,6 +90,7 @@ func (c Controller) DeleteFavorites(ctx context.Context, fileID string, userID s
 
 	return favorite, nil
 }
+
 
 
 
