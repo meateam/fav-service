@@ -20,11 +20,8 @@ func NewService(controller Controller, logger *logrus.Logger) Service {
 }
 
 func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteRequest,) (*pb.FavoriteObject, error) {
-	// fileID := req.FileID - what are the difference
 	fileID := req.GetFileID()
 	userID := req.GetUserID()
-
-	fmt.Println(fileID, userID)
 
 	if userID == "" {
 		return nil, fmt.Errorf("userID is required")
@@ -43,7 +40,6 @@ func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteReque
 	if err := favorite.MarshalProto(&response); err != nil {
 		return nil, err
 	}
-
 
 	return &response, nil
 }

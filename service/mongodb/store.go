@@ -93,13 +93,17 @@ func (s MongoStore) Create(ctx context.Context, favorite service.Favorite,) (ser
 		{Key: "fileID", Value: fileID},
 	}
 
-	collection.InsertOne(ctx, favObject)
+	res, err := collection.InsertOne(ctx, favObject)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(res)
 
 	result := collection.FindOne(ctx, favObject)
 	favoriteRes := &BSON{}
-	er := result.Decode(favoriteRes)
-	if er != nil {
-		return nil, er
+	err = result.Decode(favoriteRes)
+	if err != nil {
+		return nil, err
 	}
 
 	return favoriteRes, nil

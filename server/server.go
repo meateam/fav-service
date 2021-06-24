@@ -3,9 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	// "log"
 	"net"
-
 	"time"
 
 	pb "github.com/meateam/fav-service/proto"
@@ -13,15 +11,12 @@ import (
 	"github.com/meateam/fav-service/service/mongodb"
 	"github.com/sirupsen/logrus"
 	"go.elastic.co/apm/module/apmmongo"
-
-	// "github.com/meateam/fav-service/service/mongodb"
 	ilogger "github.com/meateam/elasticsearch-logger"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 	"google.golang.org/grpc"
-	// "google.golang.org/grpc/reflection"
 )
 
 const (
@@ -73,12 +68,15 @@ func NewServer(logger *logrus.Logger) *FavoriteServer {
 
 	controller, err := initMongoDBController(viper.GetString(configMongoConnectionString))
 
+
 	if err != nil {
 		logger.Fatalf("%v", err)
 	}
 
 	favoriteService := service.NewService(controller, logger)
 	pb.RegisterFavoriteServer(grpcServer, favoriteService)
+
+
 
 	favoriteServer := &FavoriteServer{
 		Server: *grpcServer,
@@ -90,13 +88,6 @@ func NewServer(logger *logrus.Logger) *FavoriteServer {
 	return favoriteServer
 
 }
-
-
-
-
-
-
-
 
 
 func initMongoDBController(connectionString string) (service.Controller, error) {
@@ -115,12 +106,8 @@ func initMongoDBController(connectionString string) (service.Controller, error) 
 		return nil, fmt.Errorf("failed creating mongo store: %v", err)
 	}
 	return controller, nil
-	
-
 
 }
-
-
 
 func connectToMongoDB(connectionString string) (*mongo.Client, error) {
 	mongoOptions := options.Client().ApplyURI(connectionString).SetMonitor(apmmongo.CommandMonitor())
@@ -152,59 +139,4 @@ func getMongoDatabaseName(mongoClient *mongo.Client, connectionString string) (*
 
 	return mongoClient.Database(connString.Database), nil
 }
-
-
-
-
-
-
-
-// func NewServer() {
-
-// //connection to mongo:
-
-
-// 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString(configMongoConnectionString)))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
-
-// 	err = client.Connect(ctx)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	defer client.Disconnect(ctx)
-
-
-
-
-
-// //connection to grpc:
-
-// 	lis, err := net.Listen("tcp", ":"+viper.GetString(configPort))
-// 	if err != nil {
-// 		log.Fatalf("failed to listen: %v", err)
-// 	}
-
-// 	fmt.Println(":"+viper.GetString(configPort))
-// 	grpcServer := grpc.NewServer()
-
-// 	pb.RegisterFavoriteServer(grpcServer, &FavoriteServer{})
-
-// 	reflection.Register(grpcServer)
-
-
-// 	if err := grpcServer.Serve(lis); err != nil {
-// 		log.Fatalf("failed to serve: %v", err)
-// 	}
-
-// 	log.Fatal()
-
-// }
-
-
 
