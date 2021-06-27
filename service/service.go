@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pb "github.com/meateam/fav-service/proto"
 	"github.com/sirupsen/logrus"
@@ -10,15 +11,19 @@ import (
 
 // Service is a structure used for handling favorite Service grpc requests.
 type Service struct {
-	pb.UnimplementedFavoriteServer
 	controller Controller
 	logger     *logrus.Logger
+	pb.UnimplementedFavoriteServer
 }
 
+// NewService creates a Service and returns it.
 func NewService(controller Controller, logger *logrus.Logger) Service {
 	return Service{controller: controller, logger: logger}
+
 }
 
+
+// CreateFavorite is the request handler for creating a favorite. 
 func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteRequest,) (*pb.FavoriteObject, error) {
 	fileID := req.GetFileID()
 	userID := req.GetUserID()
@@ -31,7 +36,7 @@ func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteReque
 		return nil, fmt.Errorf("fileID is required")
 	}
 
-	favorite, err := s.controller.CreateFavorites(ctx, fileID, userID)
+	favorite, err := s.controller.CreateFavorite(ctx, fileID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +47,10 @@ func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteReque
 	}
 
 	return &response, nil
+
 }
 
+// DeleteFavorite is the request handler for deleting favorite.
 func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteRequest,) (*pb.FavoriteObject, error) {
 	fileID := req.GetFileID()
 	userID := req.GetUserID()
@@ -56,7 +63,7 @@ func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteReque
 		return nil, fmt.Errorf("fileID is required")
 	}
 
-	favorite, err := s.controller.DeleteFavorites(ctx, fileID, userID)
+	favorite, err := s.controller.DeleteFavorite(ctx, fileID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +77,8 @@ func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteReque
 
 }
 
-func (s Service) GetAllFavorite(ctx context.Context, req *pb.GetAllFavoriteRequest,) (*pb.GetAllFavoriteResponse, error) {
+// GetAllFavorites is the request handler for getting all user favorite files.  
+func (s Service) GetAllFavorites(ctx context.Context, req *pb.GetAllFavoritesRequest,) (*pb.GetAllFavoritesResponse, error) {
 	userID := req.GetUserID()
 
 	if userID == "" {
@@ -82,8 +90,22 @@ func (s Service) GetAllFavorite(ctx context.Context, req *pb.GetAllFavoriteReque
 		return nil, err
 	}
 
-	return &pb.GetAllFavoriteResponse{FavFileList: favorite}, nil
+	return &pb.GetAllFavoritesResponse{FavFileIDList: favorite}, nil
+
 }
 
 
+// HealthCheck checks the health of the service, returns true if healthy, or false otherwise.
+func (s Service) HealthCheck(mongoClientPingTimeout time.Duration) bool {
+	timeoutCtx, cancel := context.WithTimeout(context.TODO(), mongoClientPingTimeout)
+	defer cancel()
+	healthy, err := s.controller.HealthCheck(timeoutCtx)
+	if err != nil {
+		s.logger.Errorf("%v", err)
+		return false
+	}
+
+	return healthy
+	
+}
 

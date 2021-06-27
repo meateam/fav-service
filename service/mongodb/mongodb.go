@@ -15,6 +15,7 @@ type BSON struct {
 // GetFileID returns b.FileID.
 func (b BSON) GetFileID() string {
 	return b.FileID
+
 }
 
 // SetFileID sets b.FileID to fileID.
@@ -29,11 +30,13 @@ func (b *BSON) SetFileID(fileID string) error {
 
 	b.FileID = fileID
 	return nil
+
 }
 
 // GetUserID returns b.UserID.
 func (b BSON) GetUserID() string {
 	return b.UserID
+
 }
 
 // SetUserID sets b.UserID to userID.
@@ -48,6 +51,7 @@ func (b *BSON) SetUserID(userID string) error {
 
 	b.UserID = userID
 	return nil
+
 }
 
 // MarshalProto marshals b into a favorite.
@@ -56,4 +60,5 @@ func (b BSON) MarshalProto(favorite *pb.FavoriteObject) error {
 	favorite.UserID = b.GetUserID()
 
 	return nil
+
 }

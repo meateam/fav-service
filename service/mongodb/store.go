@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 const (
@@ -56,6 +57,11 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 	return MongoStore{DB: db}, nil
 }
 
+
+
+// GetAll gets all user favorite files by userID. 
+// If the user doesnt have favorite files at all, it will return empty array. 
+// If successful returns an array of favorite objects. 
 func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive.D, error) {
 
 	collection := s.DB.Collection(FavoriteCollectionName)
@@ -73,6 +79,11 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive
 	return favFiles, nil
 }
 
+
+
+// Create creates a favorite object of userID and fileID.
+// If favorite already exists then it will return nil and error.
+// If successful returns the favorite obejct and a nil error. 
 func (s MongoStore) Create(ctx context.Context, favorite service.Favorite,) (service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 
@@ -93,11 +104,10 @@ func (s MongoStore) Create(ctx context.Context, favorite service.Favorite,) (ser
 		{Key: "fileID", Value: fileID},
 	}
 
-	res, err := collection.InsertOne(ctx, favObject)
+	_, err := collection.InsertOne(ctx, favObject)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(res)
 
 	result := collection.FindOne(ctx, favObject)
 	favoriteRes := &BSON{}
@@ -109,6 +119,10 @@ func (s MongoStore) Create(ctx context.Context, favorite service.Favorite,) (ser
 	return favoriteRes, nil
 }
 
+
+// Delete deletes a favorite by userID and fileID. 
+// If favorite does not exists it will return nil and error. 
+// If successful returns the deleted favorite object. 
 func (s MongoStore) Delete(ctx context.Context, filter interface{}) (service.Favorite, error){
 	collection := s.DB.Collection(FavoriteCollectionName)
 
@@ -123,6 +137,15 @@ func (s MongoStore) Delete(ctx context.Context, filter interface{}) (service.Fav
 
 	return deletedFav, nil
 
+}
+
+// HealthCheck checks the health of the service, returns true if healthy, or false otherwise.
+func (s MongoStore) HealthCheck(ctx context.Context) (bool, error) {
+	if err := s.DB.Client().Ping(ctx, readpref.Primary()); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 

@@ -9,7 +9,7 @@ package favorite;
 service Favorite {
     rpc CreateFavorite (CreateFavoriteRequest) returns (FavoriteObject) {}
     rpc DeleteFavorite (DeleteFavoriteRequest) returns (FavoriteObject) {}
-    rpc GetAllFavorite (GetAllFavoriteRequest) returns (GetAllFavoriteResponse) {}
+    rpc GetAllFavorites (GetAllFavoritesRequest) returns (GetAllFavoritesResponse) {}
 }
 
 message CreateFavoriteRequest {
@@ -28,11 +28,11 @@ message FavoriteObject {
     string fileID = 2;
 }
 
-message GetAllFavoriteRequest {
+message GetAllFavoritesRequest {
     string userID = 1;
 }
 
-message GetAllFavoriteResponse {
-    repeated FavoriteObject favFileList = 1;
+message GetAllFavoritesResponse {
+    repeated string FavFileIDList = 1;
 }
 
