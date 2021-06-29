@@ -76,6 +76,7 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive
 		return nil, err
 	}
 
+
 	return favFiles, nil
 }
 

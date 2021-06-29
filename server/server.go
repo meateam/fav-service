@@ -26,20 +26,22 @@ import (
 )
 
 const (
-	configPort                  = "port"
-	envPrefix 					= "FVS"
-	configMongoConnectionString = "mongo_host"
-	configMongoClientConnectionTimeout = "mongo_client_connection_timeout"
-	configMongoClientPingTimeout       = "mongo_client_ping_timeout"
-	configElasticAPMIgnoreURLS         = "elastic_apm_ignore_urls"
+	configPort                  		= "port"
+	envPrefix 							= "FVS"
+	configHealthCheckInterval          	= "health_check_interval"
+	configMongoConnectionString 		= "mongo_host"
+	configMongoClientConnectionTimeout 	= "mongo_client_connection_timeout"
+	configMongoClientPingTimeout       	= "mongo_client_ping_timeout"
+	configElasticAPMIgnoreURLS         	= "elastic_apm_ignore_urls"
 
 
 )
 
 func init() {
 	viper.SetDefault(configPort, "8080")
+	viper.SetDefault(configHealthCheckInterval, 3)
 	viper.SetDefault(configElasticAPMIgnoreURLS, "/grpc.health.v1.Health/Check")
-	viper.SetDefault(configMongoConnectionString, "mongodb://localhost:27017/favorite")
+	viper.SetDefault(configMongoConnectionString, "mongodb://mongo:27017/favorite")
 	viper.SetDefault(configMongoClientConnectionTimeout, 10)
 	viper.SetDefault(configMongoClientPingTimeout, 10)
 	viper.SetEnvPrefix(envPrefix)
@@ -48,7 +50,6 @@ func init() {
 
 // FavoriteServer is a structure that holds the permission grpc server and its services and configuration. 
 type FavoriteServer struct {
-	pb.UnimplementedFavoriteServer
 	*grpc.Server
 	logger 		*logrus.Logger
 	port 		string
@@ -104,7 +105,7 @@ func NewServer(logger *logrus.Logger) *FavoriteServer {
 		serverOpts...,
 	)
 
-	controller, err := initMongoDBController(viper.GetString(configMongoConnectionString))
+	controller, err := initMongoDBController()
 	if err != nil {
 		logger.Fatalf("%v", err)
 	}
@@ -112,27 +113,32 @@ func NewServer(logger *logrus.Logger) *FavoriteServer {
 	favoriteService := service.NewService(controller, logger)
 	pb.RegisterFavoriteServer(grpcServer, favoriteService)
 
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
 
 
 	favoriteServer := &FavoriteServer{
 		Server: grpcServer,
 		logger: logger,
 		port: viper.GetString(configPort),
+		healthCheckInterval: viper.GetInt(configHealthCheckInterval),
 		favoriteService: favoriteService,
 	}
+
+	// Health check validation goroutine worker.
+	go favoriteServer.healthCheckWorker(healthServer)
 
 	return favoriteServer
 
 }
 
-
-func initMongoDBController(connectionString string) (service.Controller, error) {
-	mongoClient, err := connectToMongoDB(connectionString)
+func initMongoDBController() (service.Controller, error) {
+	mongoClient, err := connectToMongoDB(viper.GetString(configMongoConnectionString))
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := getMongoDatabaseName(mongoClient, connectionString)
+	db, err := getMongoDatabaseName(mongoClient, viper.GetString(configMongoConnectionString))
 	if err != nil {
 		return nil, err
 	}
@@ -145,6 +151,10 @@ func initMongoDBController(connectionString string) (service.Controller, error) 
 	return controller, nil
 
 }
+
+// mongoOptions:
+// SetMonitor specifies a CommandMonitor to receive command events.
+// CommandMonitor represents a monitor that is triggered for different events.
 
 func connectToMongoDB(connectionString string) (*mongo.Client, error) {
 	// Create mongodb client.
@@ -173,6 +183,7 @@ func connectToMongoDB(connectionString string) (*mongo.Client, error) {
 	}
 
 	return mongoClient, nil
+
 }
 
 
@@ -183,6 +194,7 @@ func getMongoDatabaseName(mongoClient *mongo.Client, connectionString string) (*
 	}
 
 	return mongoClient.Database(connString.Database), nil
+
 }
 
 
@@ -211,38 +223,19 @@ func serverLoggerInterceptor(logger *logrus.Logger) []grpc.ServerOption {
 		ignoreInitialRequest,
 		loggerOpts...,
 	)
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 // healthCheckWorker is running an infinite loop that sets the serving status once
 // in s.healthCheckInterval seconds.
 func (s FavoriteServer) healthCheckWorker(healthServer *health.Server) {
+	//GetDuration returns the value associated with the key as a duration.
 	mongoClientPingTimeout := viper.GetDuration(configMongoClientPingTimeout)
+
 	for {
+		// HealthCheck checks the health of the service, returns true if healthy, or false otherwise
 		if s.favoriteService.HealthCheck(mongoClientPingTimeout * time.Second) {
 			healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 		} else {
@@ -251,6 +244,7 @@ func (s FavoriteServer) healthCheckWorker(healthServer *health.Server) {
 
 		time.Sleep(time.Second * time.Duration(s.healthCheckInterval))
 	}
+
 }
 
 

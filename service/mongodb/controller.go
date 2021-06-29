@@ -43,14 +43,14 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]strin
 		return nil, err
 	}
 
+	if err == mongo.ErrNoDocuments {
+		return nil, status.Error(codes.NotFound, "favorite not found")
+	}
+
 	var returnedFavFiles []string
 
 	for _, fileob := range favoriteFiles {
 		returnedFavFiles = append(returnedFavFiles, fileob[2].Value.(string))
-	}
-
-	if err == mongo.ErrNoDocuments {
-		return nil, status.Error(codes.NotFound, "favorite not found")
 	}
 
 	return returnedFavFiles, nil
