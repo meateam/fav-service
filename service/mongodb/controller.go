@@ -50,7 +50,7 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]strin
 	var returnedFavFiles []string
 
 	for _, fileob := range favoriteFiles {
-		returnedFavFiles = append(returnedFavFiles, fileob[2].Value.(string))
+		returnedFavFiles = append(returnedFavFiles, fileob.GetFileID())
 	}
 
 	return returnedFavFiles, nil

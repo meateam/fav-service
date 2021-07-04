@@ -6,7 +6,7 @@ import (
 
 	"github.com/meateam/fav-service/service"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	// "go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -62,7 +62,7 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 // GetAll gets all user favorite files by userID. 
 // If the user doesnt have favorite files at all, it will return empty array. 
 // If successful returns an array of favorite objects. 
-func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive.D, error) {
+func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]BSON, error) {
 
 	collection := s.DB.Collection(FavoriteCollectionName)
 
@@ -71,11 +71,10 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive
 		return nil, err
 	}
 
-	var favFiles []bson.D
+	var favFiles []BSON
 	if err = filterCursor.All(ctx, &favFiles); err != nil {
 		return nil, err
 	}
-
 
 	return favFiles, nil
 }
