@@ -10,7 +10,8 @@ import (
 type Controller interface {
 	CreateFavorite(ctx context.Context, fileID string, userID string) (Favorite, error)
 	DeleteFavorite(ctx context.Context, fileID string, userID string) (Favorite, error)
-	GetAllFavorites(ctx context.Context, userID string) ([]string, error)
+	GetAllFavoritesByUserID(ctx context.Context, userID string) ([]string, error)
+	GetByFileAndUser(ctx context.Context, fileID string, userID string) (Favorite ,error)
 	HealthCheck(ctx context.Context) (bool, error)
 	
 }

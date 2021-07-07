@@ -71,6 +71,10 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]BSON, err
 		return nil, err
 	}
 
+
+	// returnfiles := &FileID{}
+
+
 	var favFiles []BSON
 	if err = filterCursor.All(ctx, &favFiles); err != nil {
 		return nil, err
@@ -146,6 +150,22 @@ func (s MongoStore) HealthCheck(ctx context.Context) (bool, error) {
 	}
 
 	return true, nil
+}
+
+
+// Get finds one favorite that matches filter,
+// if successful returns the favorite, and a nil error,
+// if the favorite is not found it would return nil and NotFound error,
+// otherwise returns nil and non-nil error if any occurred.
+func (s MongoStore) Get(ctx context.Context, filter interface{}) (service.Favorite, error) {
+	collection := s.DB.Collection(FavoriteCollectionName)
+	favorite := &BSON{}
+	foundFav := collection.FindOne(ctx, filter)
+	err := foundFav.Decode(favorite)
+	if err != nil {
+		return nil, err
+	}
+	return favorite, nil
 }
 
 

@@ -29,8 +29,8 @@ func NewMongoController(db *mongo.Database) (Controller, error) {
 }
 
 
-// GetAllFavorites gets all user favorite files by userID
-func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]string, error) {
+// GetAllFavoritesByUserID gets all user favorite files by userID
+func (c Controller) GetAllFavoritesByUserID(ctx context.Context, userID string) ([]string, error) {
 	filter := bson.D{
 		bson.E{
 			Key:   FavoriteBSONUserIDField,
@@ -47,6 +47,7 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]strin
 		return nil, status.Error(codes.NotFound, "favorite not found")
 	}
 
+	
 	var returnedFavFiles []string
 
 	for _, fileob := range favoriteFiles {
@@ -106,9 +107,28 @@ func (c Controller) HealthCheck(ctx context.Context) (bool, error) {
 }
 
 
+// GetByFileAndUser retrieves the favorite that matches fileID and userID, and any error if occurred.
+func (c Controller) GetByFileAndUser(ctx context.Context, fileID string, userID string) (service.Favorite, error) {
+	filter := bson.D{
+		bson.E{
+			Key:   FavoriteBSONFileIDField,
+			Value: fileID,
+		},
+		bson.E{
+			Key:   FavoriteBSONUserIDField,
+			Value: userID,
+		},
+	}
 
+	favorite, err := c.store.Get(ctx, filter)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return nil, err
+	}
+	
+	if err == mongo.ErrNoDocuments {
+		return nil, status.Error(codes.NotFound, "favorite not found")
+	}
 
+	return favorite, nil
 
-
-
-
+}

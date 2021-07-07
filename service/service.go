@@ -77,15 +77,15 @@ func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteReque
 
 }
 
-// GetAllFavorites is the request handler for getting all user favorite files.  
-func (s Service) GetAllFavorites(ctx context.Context, req *pb.GetAllFavoritesRequest,) (*pb.GetAllFavoritesResponse, error) {
+// GetAllFavoritesByUserID is the request handler for getting all user favorite files.  
+func (s Service) GetAllFavoritesByUserID(ctx context.Context, req *pb.GetAllFavoritesRequest,) (*pb.GetAllFavoritesResponse, error) {
 	userID := req.GetUserID()
 
 	if userID == "" {
 		return nil, fmt.Errorf("userID is required")
 	}
 
-	favorite, err := s.controller.GetAllFavorites(ctx, userID)
+	favorite, err := s.controller.GetAllFavoritesByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,3 +109,24 @@ func (s Service) HealthCheck(mongoClientPingTimeout time.Duration) bool {
 	
 }
 
+// IsFavorite is the request handler for checking user favorite by userID and fileID.
+func (s Service) IsFavorite(ctx context.Context, req *pb.IsFavoriteRequest) (*pb.IsFavoriteResponse, error) {
+	fileID := req.GetFileID()
+	userID := req.GetUserID()
+
+	if userID == "" {
+		return nil, fmt.Errorf("UserID is required")
+	}
+
+	if fileID == "" {
+		return nil, fmt.Errorf("FileID is required")
+	}
+
+	_, err := s.controller.GetByFileAndUser(ctx, fileID, userID)
+	if err != nil {
+		return &pb.IsFavoriteResponse{IsFavorite: false}, err
+	}
+
+	return &pb.IsFavoriteResponse{IsFavorite: true}, err
+
+}

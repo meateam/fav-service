@@ -12,6 +12,11 @@ type BSON struct {
 	UserID    string             `bson:"userID,omitempty"`
 }
 
+// FileID is the structure that represents a fileID as it's stored.
+type FileID struct {
+	FileID  []string			`bson:"fileID,omitempty"`
+}
+
 // GetFileID returns b.FileID.
 func (b BSON) GetFileID() string {
 	return b.FileID
