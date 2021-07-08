@@ -10,6 +10,7 @@ service Favorite {
     rpc DeleteFavorite (DeleteFavoriteRequest) returns (FavoriteObject) {}
     rpc GetAllFavoritesByUserID (GetAllFavoritesRequest) returns (GetAllFavoritesResponse) {}
     rpc IsFavorite (IsFavoriteRequest) returns (IsFavoriteResponse) {}
+    rpc DeleteAllfileFav (DeleteAllfileFavRequest) returns (DeleteAllfileFavResponse) {}
 }
 
 message CreateFavoriteRequest {
@@ -43,4 +44,13 @@ message IsFavoriteRequest {
 
 message IsFavoriteResponse {
     bool IsFavorite = 1;
+}
+
+message DeleteAllfileFavRequest {
+    string fileID = 1;
+}
+
+message DeleteAllfileFavResponse {
+    bool acknownledged = 1;
+    int32 deletedCount = 2;
 }

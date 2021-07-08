@@ -6,7 +6,6 @@ import (
 
 	"github.com/meateam/fav-service/service"
 	"go.mongodb.org/mongo-driver/bson"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -29,6 +28,13 @@ const (
 // MongoStore holds the mongodb database and implements Store interface.
 type MongoStore struct {
 	DB *mongo.Database
+}
+
+
+// DeletedFavRes is the struct of the result from the delete all requests
+type DeletedFavRes struct {
+	acknownledged 	bool
+	deletedCount 	int32
 }
 
 // newMongoStore returns a new store.
@@ -169,6 +175,20 @@ func (s MongoStore) Get(ctx context.Context, filter interface{}) (service.Favori
 }
 
 
+// DeleteAll deletes all favorites that matches filter
+// if successful returns the deletedFavRes type with acknownledged true and deletedCount of favorites and nil
+// otherwise returns the deletedFavRes type with acknownledged false and 0 deletedCount and nil
+func (s MongoStore) DeleteAll(ctx context.Context, filter interface{}) (*DeletedFavRes, error) {
+	collection := s.DB.Collection(FavoriteCollectionName)
+	result, err := collection.DeleteMany(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
 
+	if result.DeletedCount == 0 {
+		return &DeletedFavRes{acknownledged: false, deletedCount: int32(result.DeletedCount)}, nil
+	}
 
+	return &DeletedFavRes{acknownledged: true, deletedCount: int32(result.DeletedCount)}, nil
 
+}

@@ -130,3 +130,15 @@ func (s Service) IsFavorite(ctx context.Context, req *pb.IsFavoriteRequest) (*pb
 	return &pb.IsFavoriteResponse{IsFavorite: true}, err
 
 }
+
+
+// DeleteAllfileFav is the request handler for deleteing all favorite files by fileID.  
+func (s Service) DeleteAllfileFav(ctx context.Context, req *pb.DeleteAllfileFavRequest) (*pb.DeleteAllfileFavResponse, error) {
+	fileID := req.GetFileID()
+	if fileID == "" {
+		return nil, fmt.Errorf("FileID is required")
+	}
+
+	result, _ := s.controller.DeleteAllfileFav(ctx, fileID)
+	return result, nil
+}

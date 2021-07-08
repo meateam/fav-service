@@ -22,6 +22,7 @@ type FavoriteClient interface {
 	DeleteFavorite(ctx context.Context, in *DeleteFavoriteRequest, opts ...grpc.CallOption) (*FavoriteObject, error)
 	GetAllFavoritesByUserID(ctx context.Context, in *GetAllFavoritesRequest, opts ...grpc.CallOption) (*GetAllFavoritesResponse, error)
 	IsFavorite(ctx context.Context, in *IsFavoriteRequest, opts ...grpc.CallOption) (*IsFavoriteResponse, error)
+	DeleteAllfileFav(ctx context.Context, in *DeleteAllfileFavRequest, opts ...grpc.CallOption) (*DeleteAllfileFavResponse, error)
 }
 
 type favoriteClient struct {
@@ -68,6 +69,15 @@ func (c *favoriteClient) IsFavorite(ctx context.Context, in *IsFavoriteRequest, 
 	return out, nil
 }
 
+func (c *favoriteClient) DeleteAllfileFav(ctx context.Context, in *DeleteAllfileFavRequest, opts ...grpc.CallOption) (*DeleteAllfileFavResponse, error) {
+	out := new(DeleteAllfileFavResponse)
+	err := c.cc.Invoke(ctx, "/favorite.Favorite/DeleteAllfileFav", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FavoriteServer is the server API for Favorite service.
 // All implementations must embed UnimplementedFavoriteServer
 // for forward compatibility
@@ -76,6 +86,7 @@ type FavoriteServer interface {
 	DeleteFavorite(context.Context, *DeleteFavoriteRequest) (*FavoriteObject, error)
 	GetAllFavoritesByUserID(context.Context, *GetAllFavoritesRequest) (*GetAllFavoritesResponse, error)
 	IsFavorite(context.Context, *IsFavoriteRequest) (*IsFavoriteResponse, error)
+	DeleteAllfileFav(context.Context, *DeleteAllfileFavRequest) (*DeleteAllfileFavResponse, error)
 	mustEmbedUnimplementedFavoriteServer()
 }
 
@@ -94,6 +105,9 @@ func (UnimplementedFavoriteServer) GetAllFavoritesByUserID(context.Context, *Get
 }
 func (UnimplementedFavoriteServer) IsFavorite(context.Context, *IsFavoriteRequest) (*IsFavoriteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsFavorite not implemented")
+}
+func (UnimplementedFavoriteServer) DeleteAllfileFav(context.Context, *DeleteAllfileFavRequest) (*DeleteAllfileFavResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAllfileFav not implemented")
 }
 func (UnimplementedFavoriteServer) mustEmbedUnimplementedFavoriteServer() {}
 
@@ -180,6 +194,24 @@ func _Favorite_IsFavorite_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Favorite_DeleteAllfileFav_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAllfileFavRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FavoriteServer).DeleteAllfileFav(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/favorite.Favorite/DeleteAllfileFav",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FavoriteServer).DeleteAllfileFav(ctx, req.(*DeleteAllfileFavRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Favorite_ServiceDesc is the grpc.ServiceDesc for Favorite service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -202,6 +234,10 @@ var Favorite_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IsFavorite",
 			Handler:    _Favorite_IsFavorite_Handler,
+		},
+		{
+			MethodName: "DeleteAllfileFav",
+			Handler:    _Favorite_DeleteAllfileFav_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

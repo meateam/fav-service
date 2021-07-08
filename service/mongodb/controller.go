@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	pb "github.com/meateam/fav-service/proto"
+
 
 )
 
@@ -130,5 +132,23 @@ func (c Controller) GetByFileAndUser(ctx context.Context, fileID string, userID 
 	}
 
 	return favorite, nil
+
+}
+
+// DeleteAllfileFav deletes all favorites of a file and returns true and the number of favorites that were deleted.
+func (c Controller) DeleteAllfileFav(ctx context.Context, fileID string) (*pb.DeleteAllfileFavResponse, error) {
+	filter := bson.D{
+		bson.E{
+			Key:   FavoriteBSONFileIDField,
+			Value: fileID,
+		},
+	}
+
+	result, err := c.store.DeleteAll(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DeleteAllfileFavResponse{Acknownledged: result.acknownledged, DeletedCount: result.deletedCount}, nil
 
 }
