@@ -78,7 +78,7 @@ func (s Service) DeleteFavorite(ctx context.Context, req *pb.DeleteFavoriteReque
 }
 
 // GetAllFavoritesByUserID is the request handler for getting all user favorite files.  
-func (s Service) GetAllFavoritesByUserID(ctx context.Context, req *pb.GetAllFavoritesRequest,) (*pb.GetAllFavoritesResponse, error) {
+func (s Service) GetAllFavoritesByUserID(ctx context.Context, req *pb.GetManyFavoritesRequest,) (*pb.GetManyFavoritesResponse, error) {
 	userID := req.GetUserID()
 
 	if userID == "" {
@@ -90,7 +90,8 @@ func (s Service) GetAllFavoritesByUserID(ctx context.Context, req *pb.GetAllFavo
 		return nil, err
 	}
 
-	return &pb.GetAllFavoritesResponse{FavFileIDList: favorite}, nil
+	return &pb.GetManyFavoritesResponse{FavFileIDList: favorite.FavFileIDList}, nil
+	// return &pb.GetAllFavoritesResponse{FavFileIDList: favorite}, nil
 
 }
 

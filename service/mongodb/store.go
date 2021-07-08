@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	// pb "github.com/meateam/fav-service/proto"
+
 )
 
 const (
@@ -36,6 +38,7 @@ type DeletedFavRes struct {
 	acknownledged 	bool
 	deletedCount 	int32
 }
+
 
 // newMongoStore returns a new store.
 func newMongoStore(db *mongo.Database) (MongoStore, error) {
@@ -69,16 +72,12 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 // If the user doesnt have favorite files at all, it will return empty array. 
 // If successful returns an array of favorite objects. 
 func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]BSON, error) {
-
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	filterCursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-
-
-	// returnfiles := &FileID{}
 
 
 	var favFiles []BSON
@@ -88,7 +87,6 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]BSON, err
 
 	return favFiles, nil
 }
-
 
 
 // Create creates a favorite object of userID and fileID.

@@ -48,7 +48,7 @@ func init() {
 	viper.AutomaticEnv()
 }
 
-// FavoriteServer is a structure that holds the permission grpc server and its services and configuration. 
+// FavoriteServer is a structure that holds the favorite grpc server and its services and configuration. 
 type FavoriteServer struct {
 	*grpc.Server
 	logger 		*logrus.Logger

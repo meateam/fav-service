@@ -32,15 +32,15 @@ func NewMongoController(db *mongo.Database) (Controller, error) {
 
 
 // GetAllFavoritesByUserID gets all user favorite files by userID
-func (c Controller) GetAllFavoritesByUserID(ctx context.Context, userID string) ([]string, error) {
+func (c Controller) GetAllFavoritesByUserID(ctx context.Context, userID string) (*pb.GetManyFavoritesResponse, error) {
 	filter := bson.D{
 		bson.E{
 			Key:   FavoriteBSONUserIDField,
 			Value: userID,
 		},
 	}
-
 	favoriteFiles, err := c.store.GetAll(ctx, filter)
+
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	}
@@ -49,14 +49,13 @@ func (c Controller) GetAllFavoritesByUserID(ctx context.Context, userID string) 
 		return nil, status.Error(codes.NotFound, "favorite not found")
 	}
 
-	
-	var returnedFavFiles []string
+	var returnedFiles []*pb.FileIDObject
 
-	for _, fileob := range favoriteFiles {
-		returnedFavFiles = append(returnedFavFiles, fileob.GetFileID())
+	for _, file := range favoriteFiles {
+		returnedFiles = append(returnedFiles, &pb.FileIDObject{FileID: file.FileID})
 	}
 
-	return returnedFavFiles, nil
+	return &pb.GetManyFavoritesResponse{FavFileIDList: returnedFiles}, nil
 
 }
 
