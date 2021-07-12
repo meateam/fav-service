@@ -2,7 +2,6 @@ syntax = "proto3";
 
 option go_package = "https://github.com/meateam/fav-service/blob/develop/proto/fav.proto";
 
-
 package favorite;
 
 service Favorite {
@@ -34,7 +33,7 @@ message GetManyFavoritesRequest {
 
 message GetManyFavoritesResponse {
 
-    repeated fileIDObject FavFileIDList = 1;
+    repeated fileIDObject favFileIDList = 1;
 }
 
 message fileIDObject {

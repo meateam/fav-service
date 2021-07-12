@@ -91,7 +91,6 @@ func (s Service) GetAllFavoritesByUserID(ctx context.Context, req *pb.GetManyFav
 	}
 
 	return &pb.GetManyFavoritesResponse{FavFileIDList: favorite.FavFileIDList}, nil
-	// return &pb.GetAllFavoritesResponse{FavFileIDList: favorite}, nil
 
 }
 
