@@ -31,8 +31,8 @@ func NewMongoController(db *mongo.Database) (Controller, error) {
 }
 
 
-// GetAllFavoritesByUserID gets all user favorite files by userID
-func (c Controller) GetAllFavoritesByUserID(ctx context.Context, userID string) (*pb.GetManyFavoritesResponse, error) {
+// GetManyFavoritesByUserID gets all user favorite files by userID
+func (c Controller) GetManyFavoritesByUserID(ctx context.Context, userID string) (*pb.GetManyFavoritesResponse, error) {
 	filter := bson.D{
 		bson.E{
 			Key:   FavoriteBSONUserIDField,
