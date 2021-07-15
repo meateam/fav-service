@@ -124,10 +124,10 @@ func (s Service) IsFavorite(ctx context.Context, req *pb.IsFavoriteRequest) (*pb
 
 	_, err := s.controller.GetByFileAndUser(ctx, fileID, userID)
 	if err != nil {
-		return &pb.IsFavoriteResponse{IsFavorite: false}, err
+		return &pb.IsFavoriteResponse{IsFavorite: false}, nil
 	}
 
-	return &pb.IsFavoriteResponse{IsFavorite: true}, err
+	return &pb.IsFavoriteResponse{IsFavorite: true}, nil
 
 }
 
