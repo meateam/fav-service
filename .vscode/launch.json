@@ -11,7 +11,7 @@
 			"mode": "debug",
 			"program": "${workspaceFolder}",
 			"env": {
-
+				"PS_ELASTIC_APM_IGNORE_URLS": "/grpc.health.v1.Health/Check,/api/healthcheck",
 			}
 		},
 		{
