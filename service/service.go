@@ -36,6 +36,10 @@ func (s Service) CreateFavorite(ctx context.Context, req *pb.CreateFavoriteReque
 		return nil, fmt.Errorf("fileID is required")
 	}
 
+	if isfav, _ := s.IsFavorite(ctx, &pb.IsFavoriteRequest{FileID: fileID, UserID: userID}); isfav.IsFavorite {
+		return nil, fmt.Errorf("favorite already exist")
+	}
+
 	favorite, err := s.controller.CreateFavorite(ctx, fileID, userID)
 	if err != nil {
 		return nil, err

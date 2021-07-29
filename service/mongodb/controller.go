@@ -39,6 +39,7 @@ func (c Controller) GetManyFavoritesByUserID(ctx context.Context, userID string)
 			Value: userID,
 		},
 	}
+
 	favoriteFiles, err := c.store.GetAll(ctx, filter)
 
 	if err != nil && err != mongo.ErrNoDocuments {
@@ -52,7 +53,7 @@ func (c Controller) GetManyFavoritesByUserID(ctx context.Context, userID string)
 	var returnedFiles []*pb.FileIDObject
 
 	for _, file := range favoriteFiles {
-		returnedFiles = append(returnedFiles, &pb.FileIDObject{FileID: file.FileID})
+		returnedFiles = append(returnedFiles, &pb.FileIDObject{FileID: file.GetFileID()})
 	}
 
 	return &pb.GetManyFavoritesResponse{FavFileIDList: returnedFiles}, nil
