@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	pb "github.com/meateam/fav-service/proto"
+
 
 )
 
@@ -29,8 +31,8 @@ func NewMongoController(db *mongo.Database) (Controller, error) {
 }
 
 
-// GetAllFavorites gets all user favorite files by userID
-func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]string, error) {
+// GetManyFavoritesByUserID gets all user favorite files by userID
+func (c Controller) GetManyFavoritesByUserID(ctx context.Context, userID string) (*pb.GetManyFavoritesResponse, error) {
 	filter := bson.D{
 		bson.E{
 			Key:   FavoriteBSONUserIDField,
@@ -39,6 +41,7 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]strin
 	}
 
 	favoriteFiles, err := c.store.GetAll(ctx, filter)
+
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	}
@@ -47,13 +50,13 @@ func (c Controller) GetAllFavorites(ctx context.Context, userID string) ([]strin
 		return nil, status.Error(codes.NotFound, "favorite not found")
 	}
 
-	var returnedFavFiles []string
+	var returnedFiles []*pb.FileIDObject
 
-	for _, fileob := range favoriteFiles {
-		returnedFavFiles = append(returnedFavFiles, fileob[2].Value.(string))
+	for _, file := range favoriteFiles {
+		returnedFiles = append(returnedFiles, &pb.FileIDObject{FileID: file.GetFileID()})
 	}
 
-	return returnedFavFiles, nil
+	return &pb.GetManyFavoritesResponse{FavFileIDList: returnedFiles}, nil
 
 }
 
@@ -106,9 +109,46 @@ func (c Controller) HealthCheck(ctx context.Context) (bool, error) {
 }
 
 
+// GetByFileAndUser retrieves the favorite that matches fileID and userID, and any error if occurred.
+func (c Controller) GetByFileAndUser(ctx context.Context, fileID string, userID string) (service.Favorite, error) {
+	filter := bson.D{
+		bson.E{
+			Key:   FavoriteBSONFileIDField,
+			Value: fileID,
+		},
+		bson.E{
+			Key:   FavoriteBSONUserIDField,
+			Value: userID,
+		},
+	}
 
+	favorite, err := c.store.Get(ctx, filter)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return nil, err
+	}
+	
+	if err == mongo.ErrNoDocuments {
+		return nil, status.Error(codes.NotFound, "favorite not found")
+	}
 
+	return favorite, nil
 
+}
 
+// DeleteAllfileFav deletes all favorites of a file and returns true and the number of favorites that were deleted.
+func (c Controller) DeleteAllfileFav(ctx context.Context, fileID string) (*pb.DeleteAllfileFavResponse, error) {
+	filter := bson.D{
+		bson.E{
+			Key:   FavoriteBSONFileIDField,
+			Value: fileID,
+		},
+	}
 
+	result, err := c.store.DeleteAll(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
 
+	return &pb.DeleteAllfileFavResponse{Acknownledged: result.acknownledged, DeletedCount: result.deletedCount}, nil
+
+}

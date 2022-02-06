@@ -6,10 +6,10 @@ import (
 
 	"github.com/meateam/fav-service/service"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
 )
 
 const (
@@ -30,6 +30,14 @@ const (
 type MongoStore struct {
 	DB *mongo.Database
 }
+
+
+// DeletedFavRes is the struct of the result from the delete all requests
+type DeletedFavRes struct {
+	acknownledged 	bool
+	deletedCount 	int32
+}
+
 
 // newMongoStore returns a new store.
 func newMongoStore(db *mongo.Database) (MongoStore, error) {
@@ -62,8 +70,7 @@ func newMongoStore(db *mongo.Database) (MongoStore, error) {
 // GetAll gets all user favorite files by userID. 
 // If the user doesnt have favorite files at all, it will return empty array. 
 // If successful returns an array of favorite objects. 
-func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive.D, error) {
-
+func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]service.Favorite, error) {
 	collection := s.DB.Collection(FavoriteCollectionName)
 
 	filterCursor, err := collection.Find(ctx, filter)
@@ -71,15 +78,25 @@ func (s MongoStore) GetAll(ctx context.Context, filter interface{}) ([]primitive
 		return nil, err
 	}
 
-	var favFiles []bson.D
-	if err = filterCursor.All(ctx, &favFiles); err != nil {
+	defer filterCursor.Close(ctx)
+
+	favFiles := []service.Favorite{}
+	for filterCursor.Next(ctx) {
+		fav := &BSON{}
+		err := filterCursor.Decode(fav)
+		if err != nil {
+			return nil, err
+		}
+		favFiles = append(favFiles, fav)
+	}
+
+	if err := filterCursor.Err(); err != nil {
 		return nil, err
 	}
 
-
 	return favFiles, nil
-}
 
+}
 
 
 // Create creates a favorite object of userID and fileID.
@@ -150,6 +167,36 @@ func (s MongoStore) HealthCheck(ctx context.Context) (bool, error) {
 }
 
 
+// Get finds one favorite that matches filter,
+// if successful returns the favorite, and a nil error,
+// if the favorite is not found it would return nil and NotFound error,
+// otherwise returns nil and non-nil error if any occurred.
+func (s MongoStore) Get(ctx context.Context, filter interface{}) (service.Favorite, error) {
+	collection := s.DB.Collection(FavoriteCollectionName)
+	favorite := &BSON{}
+	foundFav := collection.FindOne(ctx, filter)
+	err := foundFav.Decode(favorite)
+	if err != nil {
+		return nil, err
+	}
+	return favorite, nil
+}
 
 
+// DeleteAll deletes all favorites that matches filter
+// if successful returns the deletedFavRes type with acknownledged true and deletedCount of favorites and nil
+// otherwise returns the deletedFavRes type with acknownledged false and 0 deletedCount and nil
+func (s MongoStore) DeleteAll(ctx context.Context, filter interface{}) (*DeletedFavRes, error) {
+	collection := s.DB.Collection(FavoriteCollectionName)
+	result, err := collection.DeleteMany(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
 
+	if result.DeletedCount == 0 {
+		return &DeletedFavRes{acknownledged: false, deletedCount: int32(result.DeletedCount)}, nil
+	}
+
+	return &DeletedFavRes{acknownledged: true, deletedCount: int32(result.DeletedCount)}, nil
+
+}

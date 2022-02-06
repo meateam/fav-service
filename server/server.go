@@ -41,14 +41,14 @@ func init() {
 	viper.SetDefault(configPort, "8080")
 	viper.SetDefault(configHealthCheckInterval, 3)
 	viper.SetDefault(configElasticAPMIgnoreURLS, "/grpc.health.v1.Health/Check")
-	viper.SetDefault(configMongoConnectionString, "mongodb://mongo:27017/favorite")
+	viper.SetDefault(configMongoConnectionString, "mongodb://localhost:27017/favorite")
 	viper.SetDefault(configMongoClientConnectionTimeout, 10)
 	viper.SetDefault(configMongoClientPingTimeout, 10)
 	viper.SetEnvPrefix(envPrefix)
 	viper.AutomaticEnv()
 }
 
-// FavoriteServer is a structure that holds the permission grpc server and its services and configuration. 
+// FavoriteServer is a structure that holds the favorite grpc server and its services and configuration. 
 type FavoriteServer struct {
 	*grpc.Server
 	logger 		*logrus.Logger
